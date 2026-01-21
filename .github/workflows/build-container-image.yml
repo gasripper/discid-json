@@ -1,0 +1,44 @@
+name: Build DiscID
+
+on: 
+  push:
+    tags:
+    - '*'
+
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+concurrency:
+  group: discid
+  cancel-in-progress: false
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Set up build environment
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y make gcc
+
+      - name: Run make deps-ubuntu
+        run: |
+          sudo make deps-ubuntu
+
+      - name: Run make discid
+        run: |
+          make discid
+          
+      - uses: ncipollo/release-action@v1
+        with:
+          artifacts: "discid"
